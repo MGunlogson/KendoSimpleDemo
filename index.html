@@ -249,7 +249,7 @@
                     params.gender = options.male ? "male" : "female";
                 }
                 var paramStr = jQuery.param(params);
-                requestPromiseAry.push(fetch("https://uinames.com/api/?" + paramStr).then(function (response){return response.json()}));
+                requestPromiseAry.push(fetch("http://uinames.com/api/?" + paramStr).then(function (response){return response.json()}));
 
             })
             //now we have a bunch of async api requests flying around. Use a promise to resolve everything.
