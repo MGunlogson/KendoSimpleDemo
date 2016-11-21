@@ -1,0 +1,274 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang=""> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/kendo/styles/kendo.common.min.css">
+    <link rel="stylesheet" href="css/kendo/styles/kendo.bootstrap.min.css">
+    <link rel="stylesheet" href="css/kendo/styles/kendo.bootstrap.mobile.min.css">
+
+
+    <style>
+        body {
+            padding-top: 50px;
+            padding-bottom: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+</head>
+<body>
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Kendo test</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+    <div class="container">
+        <h1>Name Loader Demo</h1>
+        <p>This is a simple Kendo UI example project using static HTML, hitting a web service to generate random user
+            profiles and dropping them into a grid. For fun, it supports querying multiple regions at once even though the underlying API does not (it combines results). It also pulls the supported  regions from the API's github source instead of using a hardcoded list, so (theoretically) as the project is improved the list will stay up to date.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">Options</div>
+        <div class="panel-body">
+            <form id="namesForm" class="form-horizontal">
+                <div class="form-group">
+                    <label for="inputMale" class="col-sm-2 control-label">Male Names</label>
+                    <div class="col-sm-10">
+                        <input type="checkbox" id="inputMale" checked="checked"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputFemale" class="col-sm-2 control-label">Female Names</label>
+                    <div class="col-sm-10">
+                        <input type="checkbox" id="inputFemale" checked="checked"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="numResults" class="col-sm-2 control-label">Number of Results</label>
+                    <div class="col-sm-10">
+                        <input id="numResults"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="nameRange" class="col-sm-2 control-label">Min/Max Name Size</label>
+                    <div class="col-sm-10">
+                        <div id="nameRange">
+                            <input id="nameRangeBegin"/>
+                            <input id="nameRangeEnd"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="nameRegions" class="col-sm-2 control-label">Name Regions</label>
+                    <div class="col-sm-10">
+                        <select id="nameRegions" multiple="multiple" required validationMessage="Select At Least One Region" data-placeholder="Select Countries (start typing...)" >
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-default">Get Some Names!</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+<hr>
+
+<footer>
+    <p>&copy; Mark Gunlogson 2016</p>
+</footer>
+</div> <!-- /container -->
+<script
+        src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
+<script src="js/vendor/bootstrap.min.js"></script>
+<script src="/node_modules/setasap/setAsap.min.js"></script>
+<script src="/node_modules/whatwg-fetch/fetch.js"></script>
+<script src="js/vendor/kendo/kendo.all.min.js"></script>
+<script src="js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.js"
+        integrity="sha256-jMc5qmlrXS+V1z21mzYUtTpsqdYU4BLe8gzd/UBPo24="
+        crossorigin="anonymous"></script>
+<script>
+    'use strict';
+    //Kendo UI components
+    $(document).ready(function () {
+        var supportedRegions = [];
+        var actualGridResults = [];
+        var switchInstance = $("#inputMale").kendoMobileSwitch();
+        var switchInstance2 = $("#inputFemale").kendoMobileSwitch();
+        $("#grid").kendoGrid({
+            dataSource: {
+                data: actualGridResults,
+                schema: {
+                    model: {
+                        fields: {
+                            name: {type: "string"},
+                            surname: {type: "string"},
+                            gender: {type: "string"},
+                            region: {type: "string"}
+                        }
+                    }
+                },
+                pageSize: 100
+            },
+            height: 550,
+            groupable: true,
+            sortable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+        });
+
+
+        $("#nameRange").kendoRangeSlider({
+            min: 5,
+            max: 30,
+            orientation: "horizontal",
+            smallStep: 5,
+            largeStep: 10,
+            tickPlacement: "BOTH"
+        });
+
+        $("#numResults").kendoSlider({
+            max: 500,
+            min: 50,
+            orientation: "horizontal",
+            smallStep: 50,
+            largeStep: 100
+        });
+        $("#nameRegions").kendoMultiSelect({
+            animation: false,
+            dataSource: supportedRegions
+        });
+        //get list of available name regions for multi-select
+        fetch('https://raw.githubusercontent.com/thm/uinames/master/names.json').then(function (response) {
+            if (response.ok) {
+                response.json().then(function (json) {
+                    json.forEach(function (element) {
+                        supportedRegions.push(element.region);
+                    })
+                    //refresh datasource
+                    $("#nameRegions").data('kendoMultiSelect').refresh();
+                });
+            } else {
+                console.log('Region request failed');
+            }
+        });
+        var validator = $("#namesForm").kendoValidator().data("kendoValidator"),
+            status = $(".status");
+
+        $("#namesForm").submit(function (event) {
+            event.preventDefault();
+            if (validator.validate()) {
+                status.text("")
+                    .removeClass("invalid")
+                    .addClass("valid");
+                //make fetch call to API and dump into grid widget
+                //build query(ies)
+                var query = {
+                    male: $("#inputMale").data("kendoMobileSwitch").check(),
+                    female: $("#inputFemale").data("kendoMobileSwitch").check(),
+                    count: $("#numResults").val(),
+                    shortestName: $("#nameRangeBegin").val(),
+                    longestName: $("#nameRangeEnd").val(),
+                    nameRegions: $("#nameRegions").val(),
+                };
+                //get the data from api
+                var datar = getNamesFromApi(query);
+                //dump to grid
+
+            } else {
+                status.text("Oops! There is invalid data in the form.")
+                    .removeClass("valid")
+                    .addClass("invalid");
+            }
+        });
+        function getNamesFromApi(options) {
+            //ignore request if female and male are both unselected....
+            if ((!options.male) && (!options.female)) {
+                $("#grid").data('kendoGrid').dataSource.data([]);
+                return;
+            }
+            //make a query for each region chosen, throw them in promise array
+            var requestPromiseAry = [];
+            options.nameRegions.forEach(function (theRegion) {
+                //generate param string
+                var params = {
+                    amount: options.count,
+                    minlen: options.shortestName,
+                    maxlen: options.longestName,
+                    region: theRegion
+                };
+                //don't add the param if they want male and female(api uses blank instead)
+                if (!(options.male && options.female)) {
+                    params.gender = options.male ? "male" : "female";
+                }
+                var paramStr = jQuery.param(params);
+                requestPromiseAry.push(fetch("http://uinames.com/api/?" + paramStr).then(function (response){return response.json()}));
+
+            })
+            //now we have a bunch of async api requests flying around. Use a promise to resolve everything.
+            Promise.all(requestPromiseAry).then(function (dataArr) {
+                var resultsAry = [];
+                dataArr.forEach(function (data) {
+                    //combine the results into a single array
+                    resultsAry=resultsAry.concat(data);
+                });
+                //use lodash to sample random subset with an actual correct count...
+                actualGridResults=_.sampleSize(resultsAry,options.count);
+                //refresh grid data
+                $("#grid").data('kendoGrid').dataSource.data(actualGridResults);
+            });
+        }
+
+
+    });
+
+</script>
+</body>
+</html>
